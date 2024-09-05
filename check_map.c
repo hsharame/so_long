@@ -59,16 +59,18 @@ int	check_size_map(int fd, t_data *data, char **map)
 		line = get_next_line(fd);
 		if (line == NULL)
 			break ;
-		map[i++] = ft_strdup(line);
-		length = ft_strlen(line);
+		map[i] = ft_strdup(line);
+		length = ft_strlen(line) - 1;
 		if (data->map_length <= 0)
 			data->map_length = length;
 		if (data->map_length != length)
 		{
 			free(line);
+			ft_loop(line, fd);
 			return (0);
 		}
 		free(line);
+		i++;
 	}
 	return (1);
 }
@@ -78,7 +80,7 @@ int	check_walls(t_data *data, char **map)
 	int	i;
 
 	i = 0;
-	while (i < data->map_length - 1)
+	while (i < data->map_length)
 	{
 		if (map[0][i] != '1' || map[data->map_height - 1][i] != '1')
 			return (0);
@@ -87,7 +89,7 @@ int	check_walls(t_data *data, char **map)
 	i = 0;
 	while (i < data->map_height)
 	{
-		if (map[i][0] != '1' || map[i][data->map_length - 2] != '1')
+		if (map[i][0] != '1' || map[i][data->map_length - 1] != '1')
 			return (0);
 		i++;
 	}

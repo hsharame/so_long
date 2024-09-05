@@ -18,7 +18,7 @@ char	**init_images(void)
 
 	res = (char **)malloc(sizeof(char *) * 6);
 	if (!res)
-		error_and_exit("Initialization failed");
+		return (0);
 	res[0] = "./textures/tile.xpm";
 	res[1] = "./textures/cactus.xpm";
 	res[2] = "./textures/planet.xpm";
@@ -38,15 +38,36 @@ void	convert_to_images(t_data *data)
 	width = 32;
 	height = 32;
 	images = init_images();
+	if (!images)
+		error_and_exit(data, "Failed to load image");
 	data->images = (void **)malloc(sizeof(void *) * 6);
+	if (!data->images)
+		error_and_exit(data, "Failed to load image");
 	while (i < 5)
 	{
-		data->images[i] = mlx_xpm_file_to_image(data->mlx, images[i], &width, &height);
+		data->images[i] = mlx_xpm_file_to_image(data->mlx, images[i],
+				&width, &height);
 		if (data->images[i] == NULL)
-			error_and_exit("Failed to load image");
+			error_and_exit(data, "Failed to load image");
 		i++;
 	}
 	free(images);
+}
+
+void	choice_image(t_data *data, void *image, int *i, int *j)
+{
+	if (data->map[*i][*j] == '1')
+		image = data->images[1];
+	else if (data->map[*i][*j] == '0')
+		image = data->images[0];
+	else if (data->map[*i][*j] == 'C')
+		image = data->images[3];
+	else if (data->map[*i][*j] == 'E')
+		image = data->images[2];
+	else if (data->map[*i][*j] == 'P')
+		image = data->images[4];
+	mlx_put_image_to_window(data->mlx, data->mlx_win, image,
+		*j * 32, *i * 32);
 }
 
 void	put_image(t_data *data)
@@ -56,23 +77,13 @@ void	put_image(t_data *data)
 	void	*image;
 
 	i = 0;
+	image = NULL;
 	while (i < data->map_height)
 	{
 		j = 0;
 		while (j < data->map_length)
 		{
-			if (data->map[i][j] == '1')
-				image = data->images[1];
-			else if (data->map[i][j] == '0')
-				image = data->images[0];
-			else if (data->map[i][j] == 'C')
-				image = data->images[3];
-			else if (data->map[i][j] == 'E')
-				image = data->images[2];
-			else if (data->map[i][j] == 'P')
-				image = data->images[4];
-			mlx_put_image_to_window(data->mlx, data->mlx_win, image,
-				j * 32, i * 32);
+			choice_image(data, image, &i, &j);
 			j++;
 		}
 		i++;

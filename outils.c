@@ -30,7 +30,7 @@ int	check_extension(char *filename, char *extension)
 
 	i = ft_strlen(filename) - 1;
 	j = 3;
-	while (j <= 0)
+	while (j >= 0)
 	{
 		if (filename[i] != extension[j])
 			return (0);
@@ -57,4 +57,13 @@ int	count_lines(int fd)
 	return (count);
 }
 
-
+void	ft_loop(char *line, int fd)
+{
+	while (1)
+	{
+		line = get_next_line(fd);
+		if (line == NULL)
+			break ;
+		free(line);
+	}
+}

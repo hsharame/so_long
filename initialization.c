@@ -16,11 +16,9 @@ void	init_data(t_data *data)
 {
 	data->mlx = mlx_init();
 	if (!data->mlx)
-	{
-		free_data(data);
-		error_and_exit("MLX initialization failed");
-	}
+		error_and_exit(data, "MLX initialization failed");
 	data->player = 0;
+	data->mlx_win = NULL;
 	data->exit = 0;
 	data->collectible = 0;
 	data->map_height = 0;
@@ -30,6 +28,8 @@ void	init_data(t_data *data)
 	data->x_player = 0;
 	data->y_player = 0;
 	data->exit_found = 0;
+	data->images = NULL;
+	data->map = NULL;
 }
 
 void	init_game(t_data *data, int argc, char *argv[])
@@ -40,18 +40,14 @@ void	init_game(t_data *data, int argc, char *argv[])
 	if (!check_argv(argc, argv, fd))
 	{
 		close(fd);
-		free_data(data);
-		error_and_exit("Input is invalid");
+		error_and_exit(data, "Input is invalid");
 	}
 	init_map(fd, data, argv[1]);
 	close(fd);
 	data->mlx_win = mlx_new_window(data->mlx, data->map_length * 32,
 			data->map_height * 32, "so_long");
 	if (!data->mlx_win)
-	{
-		free_data(data);
-		error_and_exit("MLX window initialization failed");
-	}
+		error_and_exit(data, "MLX window initialization failed");
 }
 
 void	copy_map(t_data *data, char **map, int count)
@@ -61,15 +57,19 @@ void	copy_map(t_data *data, char **map, int count)
 	i = 0;
 	data->map = (char **)malloc(sizeof(char *) * count);
 	if (!data->map)
-		return ;
+		error_and_exit(data, "Memory allocation failed");
 	while (i < count)
 	{
 		data->map[i] = ft_strdup(map[i]);
 		if (!data->map[i])
-			return ;
+		{
+			free_map(data->map, i);
+			error_and_exit(data, "Memory allocation failed");
+		}
 		i++;
 	}
 }
+
 void	init_map(int fd, t_data *data, char *file)
 {
 	int		count;
@@ -77,7 +77,7 @@ void	init_map(int fd, t_data *data, char *file)
 
 	count = count_lines(fd);
 	data->map_height = count;
-	map = (char **)malloc(sizeof(char *) * count);
+	map = (char **)ft_calloc(sizeof(char *), count);
 	if (!map)
 		return ;
 	close(fd);
@@ -86,13 +86,15 @@ void	init_map(int fd, t_data *data, char *file)
 		|| !check_walls(data, map) || !check_elements(data, map)
 		|| !check_accessibility(data, map))
 	{
-		free_data(data);
-		//free_map(map, count);
-		error_and_exit("Map is invalid");
+		free_map(map, count);
+		error_and_exit(data, "Map is invalid");
 	}
 	if (data->map_height < 3 || data->map_height > 60
 		|| data->map_length > 33)
-		error_and_exit("Map is invalid");
+	{
+		free_map(map, count);
+		error_and_exit(data, "Map is too big or too small");
+	}
 	close(fd);
-	free(map);
+	free_map(map, count);
 }

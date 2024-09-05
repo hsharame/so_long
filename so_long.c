@@ -12,12 +12,6 @@
 
 #include "so_long.h"
 
-int	close_window(t_data *data)
-{
-	free_data(data);
-	exit(0);
-}
-
 int	main(int argc, char *argv[])
 {
 	t_data	data;

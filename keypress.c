@@ -44,17 +44,11 @@ int	ft_keypress(int keycode, t_data *data)
 
 void	finish(t_data *data, int win)
 {
-	/*int	i;
-
-	i = 0;*/
 	if (win)
 		ft_printf("Congratulation!\n");
 	else
 		ft_printf("Game over :(\n");
-	/*while (i++ < 5)
-		mlx_destroy_image(data->mlx, data->images[i]);*/
-	mlx_destroy_window(data->mlx, data->mlx_win);
-	mlx_destroy_display(data->mlx);
+	free_ressources(data);
 	exit (0);
 }
 
